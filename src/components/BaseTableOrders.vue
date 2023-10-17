@@ -62,6 +62,7 @@ loadOrders()
       <div class="card-actions justify-end">
         <BaseCreateEditOrder @upload-orders="() => loadOrders()" :dataForm="data" />
       </div>
+      <BaseAlert v-if="error.message" :message="error.message" />
       <div class="overflow-x-auto">
         <table class="table table-zebra">
           <!-- head -->
@@ -115,7 +116,6 @@ loadOrders()
       </div>
     </div>
   </div>
-  <BaseAlert v-if="error.message" :message="error.message" />
 </template>
 
 <style scoped></style>

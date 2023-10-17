@@ -1,6 +1,8 @@
-import { OrderModel } from "@/models/OrderModel";
+import { createOrderModel } from "@/models/OrderModel"
+import { createGeneralResponse } from "@/models/GeneralResponse"
 
 
 export {
-    OrderModel
+    createOrderModel,
+    createGeneralResponse
 }

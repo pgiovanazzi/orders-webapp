@@ -1,34 +1,35 @@
-import { BaseServices } from "@/core/BaseServices";
+import { createBaseServices } from "@/core/BaseServices";
 
-export class AuthServices extends BaseServices {
+export const createAuthServices = () => {
+    const baseServices = createBaseServices()
 
-    static login({ email, password }) {
-        const url = `${this._api}v1.0/login`
-        return fetch(this.newRequestPost(url, { username: email, password })).then(async res => {
+    const login = ({ email, password }) => {
+        const url = `${baseServices._api}v1.0/login`
+        return fetch(baseServices.newRequestPost(url, { username: email, password })).then(async res => {
             const data = await res.json()
             if (!data.code) {
-                this.loginWriteStorage(data)
+                loginWriteStorage(data)
                 return { success: true }
             } else
-                return this.handleError(res)
+                throw baseServices.handleError(res)
         }).catch(err => {
-            return this.handleError(err)
+            throw baseServices.handleError(err)
         })
     }
 
-    static loginWriteStorage(data) {
+    const loginWriteStorage = (data) => {
         localStorage.setItem('access_token', data.access_token)
         localStorage.setItem('scope', data.scope)
         localStorage.setItem('expires_in', data.expires_in)
     }
 
-    static logout() {
+    const logout = () => {
         localStorage.clear()
         location.reload()
     }
 
-    static getToken() {
-        const token = this.getItemFromStorage('access_token')
+    const getToken = () => {
+        const token = baseServices.getItemFromStorage('access_token')
         if (token) {
             return `Bearer ${token}`
         } else {
@@ -36,11 +37,21 @@ export class AuthServices extends BaseServices {
         }
     }
 
-    static loggedIn() {
-        return this.getToken() !== ''
+    const loggedIn = () => {
+        return getToken() !== ''
     }
 
-    static isAdmin() {
-        return this.getItemFromStorage('scope') === 'admin'
+    const isAdmin = () => {
+        return baseServices.getItemFromStorage('scope') === 'admin'
+    }
+
+    return { 
+        ...baseServices,
+        login,
+        loginWriteStorage,
+        logout,
+        loggedIn,
+        getToken,
+        isAdmin
     }
 }

@@ -1,34 +1,18 @@
 <script setup>
-import { ref, watch, toRefs, computed } from 'vue'
-import { OrdersServices } from '../services/OrdersServices';
-import { AuthServices } from '../services';
+import { ref, watch, toRefs } from 'vue'
+import { createOrdersServices, createAuthServices } from '@/services';
+import { createOrderModel } from '@/models'
+import BaseAlert from './BaseAlert.vue';
 
 const loadingButton = ref(false)
 const isEditModal = ref(false)
-
-const orderObject = () => {
-    return {
-        address: '',
-        customerName: '',
-        customerPhone: '',
-        deliverer: null,
-        deliverType: null,
-        state: null,
-        amount: null
-    }
-}
+const error = ref({ message: '' })
+const authServices = createAuthServices()
+const ordersServices = createOrdersServices()
 
 const props = defineProps({
     dataForm: Object, default() {
-        return {
-            address: '',
-            customerName: '',
-            customerPhone: '',
-            deliverer: null,
-            deliverType: null,
-            state: null,
-            amount: null
-        }
+        return createOrderModel({})
     }
 })
 
@@ -36,33 +20,24 @@ const { dataForm } = toRefs(props)
 
 const emits = defineEmits(['uploadOrders'])
 const form = ref({})
+const newOrder = createOrderModel({})
 
 watch(dataForm, newValue => {
     Object.assign(form.value, newValue)
+    Object.assign(newOrder, createOrderModel(newValue))
 }, { deep: true })
-
-const prepareToUpdateOrder = () => {
-    const objectUpdateOrder = {}
-    Object.keys(dataForm.value).forEach(key => {
-        if (JSON.stringify(form.value[key]) !== JSON.stringify(dataForm.value[key])) {
-            objectUpdateOrder[key] = form.value[key]
-        }
-    })
-    return objectUpdateOrder
-}
 
 const saveOrder = async () => {
     loadingButton.value = true
     try {
-        const isUpdateOrder = form.value.hasOwnProperty('_id')
-        if (isUpdateOrder)
-            await OrdersServices.updateOrder(form.value._id, prepareToUpdateOrder())
+        if (form.value._id)
+            await ordersServices.updateOrder(form.value._id, newOrder.prepareToUpdateOrder(form.value))
         else
-            await OrdersServices.saveOrder(form.value)
+            await ordersServices.saveOrder(form.value)
 
-        form.value = orderObject()
+        form.value = createOrderModel({})
     } catch (e) {
-        console.log(e)
+        error.value.message = e
     } finally {
         loadingButton.value = false
         isEditModal.value = false
@@ -72,15 +47,16 @@ const saveOrder = async () => {
 }
 
 const resetValuesForNewOrder = () => {
-    form.value = orderObject()
+    form.value = createOrderModel({})
     isEditModal.value = true
 }
 
 </script>
 
 <template>
+    <BaseAlert v-if="error.message" :message="error.message" />
     <button class="btn btn-ghost" onclick="create_oreder.showModal()" @click="resetValuesForNewOrder"
-        v-if="AuthServices.isAdmin() && AuthServices.loggedIn()">New Order</button>
+        v-if="authServices.isAdmin() && authServices.loggedIn()">New Order</button>
     <dialog id="create_oreder" class="modal">
         <div class="modal-box">
 
@@ -160,18 +136,19 @@ const resetValuesForNewOrder = () => {
 
 
                     <label class="block">
-                    <span
-                        class="after:content-['*'] after:ml-0.5 after:text-red-400 block text font-medium text-slate-300">Amount</span>
-                </label>
-                <label class='label-text text-sm' v-if="!isEditModal"><span>{{ form.amount }}</span></label>
-                <input v-else v-model.number.trim="form.amount" type="number" placeholder="Type here the amout of items"
-                    class="input input-sm input-bordered w-full max-w-xs" />
+                        <span
+                            class="after:content-['*'] after:ml-0.5 after:text-red-400 block text font-medium text-slate-300">Amount</span>
+                    </label>
+                    <label class='label-text text-sm' v-if="!isEditModal"><span>{{ form.amount }}</span></label>
+                    <input v-else v-model.number.trim="form.amount" type="number" placeholder="Type here the amout of items"
+                        class="input input-sm input-bordered w-full max-w-xs" />
 
+                </div>
+            </div>
+            <div class="modal-action" v-if="isEditModal">
+                <div><button class="btn btn-ghost" @click="saveOrder" :disabled="loadingButton"> <span v-if="loadingButton"
+                            class="loading loading-spinner"></span> Save</button></div>
             </div>
         </div>
-        <div class="modal-action" v-if="isEditModal">
-            <div><button class="btn btn-ghost" @click="saveOrder" :disabled="loadingButton"> <span v-if="loadingButton"
-                        class="loading loading-spinner"></span> Save</button></div>
-        </div>
-    </div>
-</dialog></template>
+    </dialog>
+</template>

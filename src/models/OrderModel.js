@@ -1,5 +1,16 @@
-export class OrderModel {
-    constructor({
+export const createOrderModel = ({ _id = '',
+    number = '',
+    deliveryDateTime = '',
+    address = '',
+    deliverer = null,
+    state = null,
+    customerName = '',
+    customerPhone = '',
+    deliverType = null,
+    amount = '',
+    createdAt = '',
+    updatedAt = '' }) => {
+    const orderModel = {
         _id,
         number,
         deliveryDateTime,
@@ -12,19 +23,22 @@ export class OrderModel {
         amount,
         createdAt,
         updatedAt
-    }) {
-        this._id = _id
-        this.number = number
-        this.deliveryDateTime = deliveryDateTime
-        this.address = address
-        this.deliverer = deliverer
-        this.state = state
-        this.customerName = customerName
-        this.customerPhone = customerPhone
-        this.deliverType = deliverType
-        this.amount = amount
-        this.createdAt = createdAt
-        this.updatedAt = updatedAt
     }
 
+    const prepareToUpdateOrder = (dataForm) => {
+        const objectUpdateOrder = {}
+
+        console.log(orderModel, dataForm)
+        Object.keys(dataForm).forEach(key => {
+            if (JSON.stringify(orderModel[key]) !== JSON.stringify(dataForm[key])) {
+                objectUpdateOrder[key] = dataForm[key]
+            }
+        })
+        return objectUpdateOrder
+    }
+
+    return {
+        ...orderModel,
+        prepareToUpdateOrder
+    }
 }

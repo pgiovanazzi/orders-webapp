@@ -1,54 +1,64 @@
-import { BaseServices } from "@/core/BaseServices"
-import { OrderModel } from "@/models"
+import { createBaseServices } from "@/core/BaseServices"
+import { createOrderModel } from "@/models"
 
-export class OrdersServices extends BaseServices {
-    static getOrdersList() {
-        const url = `${this._api}v1.0/orders`
-        return fetch(this.newRequestGet(url)).then(async res => {
+export const createOrdersServices = () => {
+    const baseServices = createBaseServices()
+
+    const getOrdersList = () => {
+        const url = `${baseServices._api}v1.0/orders`
+        return fetch(baseServices.newRequestGet(url)).then(async res => {
             const data = await res.json()
             if (!data.code) {
-                const orders = data.data.map(data => new OrderModel(data))
+                const orders = data.data.map(data => createOrderModel(data))
                 return orders
             } else
-                return this.handleError(res)
+                throw baseServices.handleError(res)
         }).catch(err => {
-            return this.handleError(err)
+            throw baseServices.handleError(err)
         })
     }
 
-    static saveOrder(order) {
-        const url = `${this._api}v1.0/orders`
-        return FetchTokenInstance(this.newRequestPost(url, order)).then(async res => {
+    const saveOrder = (order) => {
+        const url = `${baseServices._api}v1.0/orders`
+        return FetchTokenInstance(baseServices.newRequestPost(url, order)).then(async res => {
             const data = await res.json()
-            if (!data.code) {
+            if (!data.code)
                 return
-            } else return this.handleError(res)
+            else throw baseServices.handleError(res)
         }).catch(err => {
-            return this.handleError(err)
+            throw baseServices.handleError(err)
         })
     }
 
-    static updateOrder(id, order) {
-        const url = `${this._api}v1.0/orders/${id}`
-        return FetchTokenInstance(this.newRequestPatch(url, order)).then(async res => {
+    const updateOrder = (id, order) => {
+        const url = `${baseServices._api}v1.0/orders/${id}`
+        return FetchTokenInstance(baseServices.newRequestPatch(url, order)).then(async res => {
             const data = await res.json()
-            if (!data.code) {
+            if (!data.code)
                 return
-            } else return this.handleError(res)
+            else throw baseServices.handleError(res)
         }).catch(err => {
-            return this.handleError(err)
+            throw baseServices.handleError(err)
         })
     }
 
-    static deleteOrder(id) {
-        const url = `${this._api}v1.0/orders/${id}`
-        return FetchTokenInstance(this.newRequestDelete(url)).then(async res => {
+    const deleteOrder = (id) => {
+        const url = `${baseServices._api}v1.0/orders/${id}`
+        return FetchTokenInstance(baseServices.newRequestDelete(url)).then(async res => {
             const data = await res.json()
             if (!data.code) {
                 return
-            } else return this.handleError(res)
+            } else throw baseServices.handleError(res)
         }).catch(err => {
-            return this.handleError(err)
+            throw baseServices.handleError(err)
         })
+    }
+
+    return {
+        ...baseServices,
+        getOrdersList,
+        saveOrder,
+        updateOrder,
+        deleteOrder
     }
 }

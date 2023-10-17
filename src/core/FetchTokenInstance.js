@@ -1,13 +1,14 @@
-import { AuthServices } from "../services/AuthServices"
+import { createAuthServices } from "@/services"
 
 const { fetch: originalFetch } = window
+const authServices = createAuthServices()
 
-const FetchInstance = () => {
+export const fetchInstance = () => {
     window.FetchTokenInstance = async (...args) => {
         const [resource, config] = args
 
-        if (AuthServices.getToken())
-            resource.headers ? resource.headers.set('Authorization', AuthServices.getToken()) : null
+        if (authServices.getToken())
+            resource.headers ? resource.headers.set('Authorization', authServices.getToken()) : null
         
         const promiseApi = originalFetch(resource, config)
         const promiseClient = new Promise(resolve => {
@@ -19,5 +20,3 @@ const FetchInstance = () => {
         return response
     }
 }
-
-export default FetchInstance

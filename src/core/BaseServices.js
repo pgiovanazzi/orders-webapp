@@ -1,52 +1,52 @@
-import {GeneralResponse} from "@/models/GeneralResponse";
-import {environment} from "@/enviroments/enviroments";
+import { createGeneralResponse } from "@/models";
+import { environment } from "@/enviroments/enviroments";
 
-export class BaseServices {
-    static _api = environment.api
-    static _headers = new Headers({
+export const createBaseServices = () => {
+    const _api = environment.api
+    const _headers = new Headers({
         Accept: "application/json",
         "Content-Type": "application/json"
     })
-    static newRequestGet(url) {
+    const newRequestGet = (url) => {
         return new Request(url, {
             method: 'GET',
-            headers: this._headers,
+            headers: _headers,
             mode: 'cors',
             cache: 'default'
         })
     }
 
-    static newRequestPost(url, body) {
+    const newRequestPost = (url, body) => {
         return new Request(url, {
             method: 'POST',
-            headers: this._headers,
+            headers: _headers,
             body: JSON.stringify(body),
             mode: 'cors',
             cache: 'default'
         })
     }
 
-    static newRequestPatch(url, body) {
+    const newRequestPatch = (url, body) => {
         return new Request(url, {
             method: 'PATCH',
-            headers: this._headers,
+            headers: _headers,
             body: JSON.stringify(body),
             mode: 'cors',
             cache: 'default'
         })
     }
 
-    static newRequestDelete(url) {
+    const newRequestDelete = (url) => {
         return new Request(url, {
             method: 'DELETE',
-            headers: this._headers,
+            headers: _headers,
             mode: 'cors',
             cache: 'default'
         })
     }
 
-    static handleError(error) {
-        const res = new GeneralResponse()
+    const handleError = (error) => {
+        const res = createGeneralResponse({})
         res.data = []
         res.error = true
 
@@ -56,7 +56,17 @@ export class BaseServices {
         return res
     }
 
-    static getItemFromStorage(name) {
+    const getItemFromStorage = (name) => {
         return localStorage.getItem(name);
+    }
+
+    return {
+        _api,
+        newRequestGet,
+        newRequestPost,
+        newRequestPatch,
+        newRequestDelete,
+        handleError,
+        getItemFromStorage
     }
 }

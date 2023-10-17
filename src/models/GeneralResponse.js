@@ -1,30 +1,31 @@
-export class GeneralResponse {
+export const createGeneralResponse = ({ message = '',
+    error = false,
+    logout = false,
+    data = null,
+    links = null,
+    meta = null }) => {
 
-    constructor(message = '',
-                error = false,
-                logout = false,
-                data = null,
-                links = null,
-                meta = null) {
-        this.message = message
-        this.error = error
-        this.logout = logout
-        this.data = data
-        this.links = links
-        this.meta = meta
-    }
-
-    getFirstError() {
-        let error = '';
-        if (!this.data.length) {
-            error = this.message;
+    const getFirstError = () => {
+        let error = ''
+        if (!data.length) {
+            error = message
         } else {
-            if ((typeof this.data[0]) === 'string') {
-                error = this.data[0];
+            if ((typeof data[0]) === 'string') {
+                error = data[0];
             } else {
-                error = this.data[0][0];
+                error = data[0][0];
             }
         }
         return error;
+    }
+
+    return {
+        message,
+        error,
+        logout,
+        data,
+        links,
+        meta,
+        getFirstError
     }
 }

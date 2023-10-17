@@ -1,11 +1,12 @@
 <script setup>
 import { useRouter } from 'vue-router'
-import { AuthServices } from '../services';
+import { createAuthServices } from '../services';
 
 const router = useRouter()
+const authServices = createAuthServices()
 
 const logout = () => {
-    AuthServices.logout()
+    authServices.logout()
     router.push({ name: 'login' })
 }
 
@@ -16,11 +17,11 @@ const logout = () => {
         <div class="flex-1">
             <a class="btn btn-ghost normal-case text-xl" @click="router.push({ name: 'dashboard' })">Orders System</a>
         </div>
-        <div class="flex-none" v-if="!AuthServices.loggedIn()">
+        <div class="flex-none" v-if="!authServices.loggedIn()">
             <a class="btn btn-ghost normal-case text-xl" @click="router.push({ name: 'login' })">Login</a>
         </div>
         <div class="flex-none">
-            <div class="dropdown dropdown-end" v-if="AuthServices.isAdmin() && AuthServices.loggedIn()">
+            <div class="dropdown dropdown-end" v-if="authServices.isAdmin() && authServices.loggedIn()">
                 <label tabindex="0" class="btn btn-ghost btn-circle avatar">
                     <div class="w-10 rounded-full">
                         <img src="@/assets/images/avatar.png" />

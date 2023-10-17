@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { AuthServices } from '../services'
+import { createAuthServices } from '@/services'
+const authServices = createAuthServices()
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -32,7 +33,7 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   if (to.matched.some(record => record.meta.requiresAuth)) {
-    if (AuthServices.loggedIn()) {
+    if (authServices.loggedIn()) {
       next()
       return
     }
@@ -44,7 +45,7 @@ router.beforeEach((to, from, next) => {
 
 router.beforeEach((to, from, next) => {
   if (to.matched.some((record) => record.meta.guest)) {
-    if (AuthServices.loggedIn()) {
+    if (authServices.loggedIn()) {
       next('/dashboard')
       return
     }

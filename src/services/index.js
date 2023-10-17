@@ -1,7 +1,7 @@
-import { OrdersServices } from "@/services/OrdersServices"
-import { AuthServices } from "@/services/AuthServices"
+import { createOrdersServices } from "@/services/OrdersServices"
+import { createAuthServices } from "@/services/AuthServices"
 
 export {
-    OrdersServices,
-    AuthServices
+    createOrdersServices,
+    createAuthServices
 }

@@ -1,14 +1,18 @@
 <script setup>
 import { ref } from 'vue'
-import { OrdersServices } from '@/services'
-import BaseCreateEditOrder from './BaseCreateEditOrder.vue';
-import { AuthServices } from '../services';
+import { createOrdersServices } from '@/services'
+import { createAuthServices } from '../services';
 import { formatDateFilter } from '@/utils'
+import BaseCreateEditOrder from './BaseCreateEditOrder.vue';
+import BaseAlert from './BaseAlert.vue';
 
 
 const orders = ref([])
 const loadingOrders = ref(false)
 const data = ref({})
+const error = ref({ message: '' })
+const authServices = createAuthServices()
+const ordersServices = createOrdersServices()
 
 const headers = [
   { title: 'Customer Name' },
@@ -18,15 +22,15 @@ const headers = [
   { title: 'Deliverer' },
   { title: 'Delivery Date' },
   { title: 'State' },
-  { ...(!(AuthServices.isAdmin() && AuthServices.loggedIn()) || { title: 'Action' }) },
+  { ...(!(authServices.isAdmin() && authServices.loggedIn()) || { title: 'Action' }) },
 ]
 
 const loadOrders = async () => {
   loadingOrders.value = true
   try {
-    orders.value = await OrdersServices.getOrdersList()
+    orders.value = await ordersServices.getOrdersList()
   } catch (e) {
-    console.log(e)
+    error.value.message = e
   } finally {
     loadingOrders.value = false
   }
@@ -40,9 +44,9 @@ const showOrder = (id) => {
 const removeOrder = async (id) => {
   loadOrders.value = true
   try {
-    await OrdersServices.deleteOrder(id)
+    await ordersServices.deleteOrder(id)
   } catch (e) {
-    console.log(e)
+    error.value.message = e
   } finally {
     loadOrders.value = false
     loadOrders()
@@ -71,7 +75,7 @@ loadOrders()
           </thead>
           <tbody>
             <template v-for="(order, idx) in orders" :key="idx">
-              <tr v-if="!loadingOrders">
+              <tr v-if="orders && !loadingOrders">
                 <th>{{ idx + 1 }}</th>
                 <td>{{ order.customerName }}</td>
                 <td>{{ order.amount }}</td>
@@ -80,7 +84,7 @@ loadOrders()
                 <td>{{ order.deliverer }}</td>
                 <td>{{ formatDateFilter(order.deliveryDateTime) }}</td>
                 <td>{{ order.state }}</td>
-                <td v-if="AuthServices.isAdmin() && AuthServices.loggedIn()">
+                <td v-if="authServices.isAdmin() && authServices.loggedIn()">
                   <button @click="showOrder(order._id)" class="btn btn-square btn-ghost btn-sm">
                     <ion-icon name="eye-outline"></ion-icon>
                   </button>
@@ -111,6 +115,7 @@ loadOrders()
       </div>
     </div>
   </div>
+  <BaseAlert v-if="error.message" :message="error.message" />
 </template>
 
 <style scoped></style>

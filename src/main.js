@@ -3,8 +3,8 @@ import './assets/main.css'
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
-import FetchInstance from './core/FetchTokenInstance'
-FetchInstance()
+import { fetchInstance } from './core/FetchTokenInstance'
+fetchInstance()
 
 const app = createApp(App)
 

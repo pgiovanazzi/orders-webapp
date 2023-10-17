@@ -28,7 +28,6 @@ export const createOrderModel = ({ _id = '',
     const prepareToUpdateOrder = (dataForm) => {
         const objectUpdateOrder = {}
 
-        console.log(orderModel, dataForm)
         Object.keys(dataForm).forEach(key => {
             if (JSON.stringify(orderModel[key]) !== JSON.stringify(dataForm[key])) {
                 objectUpdateOrder[key] = dataForm[key]
